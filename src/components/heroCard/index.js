@@ -7,7 +7,7 @@ import Col from 'react-bootstrap/Col';
 import Image from 'react-bootstrap/Image';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
-
+import Modal from 'react-bootstrap/Modal'
 
 import styles from './styles.module.css';
 import classNames from "classnames";
@@ -29,42 +29,91 @@ class HeroCard extends Component {
 
       this.state = {
         
-        heroInfo : []
+        heroInfo : [],
+        show : false,
+        comicTitle : "",
+        comicImage : "",
+        comicDescription : ""
       }
 
   }
 
-  async componentDidMount(){
+  comicInfo(info){
 
-    this.getComics();
+    axios.get(info.resourceURI + "?ts=1&apikey=" + publicKey + "&hash=" + hash)
+          .then((response) => {
+
+            this.showModal(response);
+              
+      })
 
   }
 
-  getComics = async () => {
+  showModal(info){
 
-    const {heroInfo} = this.props;
-    
-    await axios.get("https://gateway.marvel.com:443/v1/public/characters/" + heroInfo.id + "/comics?limit=4&ts=1&apikey=" + publicKey + "&hash=" + hash)
-                  .then((response) => {
+    this.setState({ show : true,
+                    comicTitle : info.data.data.results[0].title,
+                    comicImage : info.data.data.results[0].thumbnail.path +"/portrait_incredible." + info.data.data.results[0].thumbnail.extension,
+                    comicDescription : info.data.data.results[0].description});
+             
 
-                    console.log(response);
-                  
-                  })
-    
-  };
+  }
+
+  handleClose(){
+    this.setState({show : false});
+  }
+
 
   getInfo(){
-    console.log(this.props.heroInfo);
+    console.log(this.state.test);
     
   }
 
   render() {
 
     const {heroInfo} = this.props;
+    const {show, comicTitle, comicImage, comicDescription} = this.state;
 
     return(
       
       <Container>
+
+      <Modal show={show} onHide={() => this.handleClose()} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>{comicTitle}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+        <Row>
+          <Col xs={6} md={4}>
+            <Image src={comicImage} rounded />
+          </Col>
+          <Col xs={12} md={8}>
+          <Card style={{ height: '100%' }}>
+            
+              <Card.Body>
+                
+                <div  className= {classNames(styles.description)}>
+                  {comicDescription ? comicDescription : "No description avaible."}
+                </div>
+
+               
+                
+              </Card.Body>
+          </Card>
+        </Col>
+          
+        </Row>
+
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => this.handleClose()}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={() => this.handleClose()}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       <Row>
         <Col xs={6} md={4}>
@@ -75,10 +124,22 @@ class HeroCard extends Component {
             
               <Card.Body>
                 <Card.Title className= {classNames(styles.title)}>{heroInfo.name}</Card.Title>
-                <div >
+                <div  className= {classNames(styles.description)}>
                   {heroInfo.description ? heroInfo.description : "No description avaible."}
                 </div>
 
+                  {
+                    heroInfo.comics.items
+                    .slice(0, 4)
+                    .map((row, index) =>
+                      <div key = {index}>
+                        <a key = {index} className= {classNames(styles.comicLink) } onClick = {() => this.comicInfo(row)}>
+                          {row.name}
+                        </a>
+                      </div>
+                      
+                    )
+                  }
                 <Button className= {classNames(styles.buttonInfo)} variant="primary" onClick = {() => this.getInfo()}>Go somewhere</Button>
                 
               </Card.Body>

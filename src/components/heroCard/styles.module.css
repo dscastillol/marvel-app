@@ -8,3 +8,17 @@
     position: absolute;
     bottom: 5px;
 }
+
+.description{
+    margin-bottom: 5%;
+    font-size: 0.98rem;
+}
+
+.comicLink{
+    color: red !important;
+}
+
+.comicLink:hover{
+    cursor: pointer !important;
+    font-weight: bold !important;
+}
