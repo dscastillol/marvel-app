@@ -1,0 +1,31 @@
+.top{
+    
+    height: 3%;
+    text-align: center;
+    font-weight: bolder;
+    color: black;
+    font-size: 1.2rem;
+    margin-bottom: 3%;
+}
+
+.comic{
+    text-align: center;
+}
+
+.title{
+    margin-top: 10%;
+}
+
+.name{
+    margin-bottom: 3%;
+    text-align: center;
+    font-weight: bold;
+    color: black;
+    font-size: 1rem;
+}
+
+.overlay {
+    position: absolute !important;
+    right: 15%;
+    z-index: 5;
+  }

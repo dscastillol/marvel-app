@@ -33,7 +33,8 @@ class HeroCard extends Component {
         show : false,
         comicTitle : "",
         comicImage : "",
-        comicDescription : ""
+        comicDescription : "",
+        activeComic : []
       }
 
   }
@@ -54,9 +55,15 @@ class HeroCard extends Component {
     this.setState({ show : true,
                     comicTitle : info.data.data.results[0].title,
                     comicImage : info.data.data.results[0].thumbnail.path +"/portrait_incredible." + info.data.data.results[0].thumbnail.extension,
-                    comicDescription : info.data.data.results[0].description});
+                    comicDescription : info.data.data.results[0].description,
+                    activeComic : info.data.data.results[0]});
              
 
+  }
+
+  addToFavs(){
+    const {activeComic} = this.state;
+    this.props.updateFavList(activeComic);
   }
 
   handleClose(){
@@ -96,6 +103,25 @@ class HeroCard extends Component {
                   {comicDescription ? comicDescription : "No description avaible."}
                 </div>
 
+                <Row className = {classNames(styles.rowButton)}>
+                    <Col>
+                    
+                      <Button variant="secondary" onClick={() => this.addToFavs()} className= {classNames(styles.buttonComic)}>
+                        ADD TO FAVOURITES
+                      </Button>
+
+                    </Col>
+
+                    <Col>
+                    
+                      <Button variant="secondary" onClick={() => this.handleClose()} className= {classNames(styles.buttonComic)}>
+                        Close
+                      </Button>
+
+                    </Col>
+
+                </Row>
+
                
                 
               </Card.Body>
@@ -105,14 +131,9 @@ class HeroCard extends Component {
         </Row>
 
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => this.handleClose()}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={() => this.handleClose()}>
-            Save Changes
-          </Button>
-        </Modal.Footer>
+       
+         
+        
       </Modal>
 
       <Row>
@@ -128,6 +149,8 @@ class HeroCard extends Component {
                   {heroInfo.description ? heroInfo.description : "No description avaible."}
                 </div>
 
+                <div className= {classNames(styles.subTitle)}>AVAIBLE COMICS:</div>
+
                   {
                     heroInfo.comics.items
                     .slice(0, 4)
@@ -140,7 +163,20 @@ class HeroCard extends Component {
                       
                     )
                   }
-                <Button className= {classNames(styles.buttonInfo)} variant="primary" onClick = {() => this.getInfo()}>Go somewhere</Button>
+
+                 
+                <Row className = {classNames(styles.rowButton)}>
+                    <Col>
+                    
+                      <Button variant="secondary" onClick={() => this.handleClose()} className= {classNames(styles.buttonComic)}>
+                        More Info
+                      </Button>
+
+                    </Col>
+
+                    
+
+                </Row>
                 
               </Card.Body>
           </Card>

@@ -22,3 +22,20 @@
     cursor: pointer !important;
     font-weight: bold !important;
 }
+
+.rowButton {
+    position: absolute;
+    bottom: 5px;
+    width: 100%;
+}
+
+.buttonComic {
+    width: 100%;
+    background-color: red !important;
+}
+
+.subTitle {
+    font-weight: bold;
+    text-decoration: underline;
+    font-size: 0.90rem;
+}

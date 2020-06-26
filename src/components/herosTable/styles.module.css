@@ -1,4 +1,26 @@
 .herosTable{
-    width: 70%;
+    width: 100%;
    
+}
+
+.drop{
+    width: 30%;
+    margin-left: 3%;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    height: 170vh;
+  }
+
+.list{
+    position: absolute;
+    height: 200%;
+    overflow-y: scroll;
+    background-color: #EFF0F1;
+}
+
+.row{
+    width: 100%;
 }

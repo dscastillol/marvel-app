@@ -14,8 +14,16 @@ import TablePagination from '@material-ui/core/TablePagination';
 
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Form from 'react-bootstrap/Form';
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import HeroCard from "../../components/heroCard/index.js";
+import ComicCard from "../../components/comicCard/index.js";
+
 
 import styles from './styles.module.css';
 import classNames from "classnames";
@@ -32,12 +40,20 @@ class HerosTable extends Component {
       finalHeros : [],
       totalHeros : [],
       actualPage : [],
-      rowsPerPage : 5,
+      rowsPerPage : 10,
       page : 0,
-      sortType : ["Name",  "Date of creation"]
+      sortType : ["Name",  "Date of creation"],
+      numberOfPages : 0,
+      favComics : []
     }
 
+    this.textInput = React.createRef(); 
+
   }
+
+  notifyWarning = (text) => toast.warning(text, {containerId: 'notification'});
+  notifySuccess = (text) => toast.success(text, {containerId: 'notification'});
+
 
   componentWillMount(){
     const {allChars} = this.props;
@@ -54,10 +70,9 @@ class HerosTable extends Component {
       
     }
 
-    console.log(finalArray[0]);
-
     this.setState({ actualPage : finalArray[0],
-                    totalHeros : finalArray});
+                    totalHeros : finalArray,
+                    numberOfPages : actual.length});
     
   }
 
@@ -78,6 +93,28 @@ class HerosTable extends Component {
 
   }
 
+  updateFavList = (info) =>{
+    
+    const {favComics} = this.state;
+    
+
+    if (favComics.filter(e => e.id === info.id).length > 0) {
+      this.notifyWarning('The comic is already in favourites.');
+      return;
+      
+    }
+
+    var temp = favComics;
+
+    temp.push(info);
+
+    this.setState({favComics : temp});
+
+    this.notifySuccess('The comic was added succesfully.')
+    
+    
+  }
+
 
   showRows(){
 
@@ -85,7 +122,7 @@ class HerosTable extends Component {
     const {finalHeros, actualPage} = this.state;
 
     const tableRows = [];
-    for (let i = 0; i < actualPage.length-1; i = i+2) {
+    for (let i = 0; i <= actualPage.length-1; i = i+2) {
       const row = actualPage[i];
       const row2 = actualPage[i+1];
 
@@ -93,12 +130,21 @@ class HerosTable extends Component {
         <TableRow  key={i}>
                                     
           <TableCell  width =  '50%' align="left">
-            <HeroCard heroInfo={row}/>
+            <HeroCard heroInfo = {row}
+                      updateFavList = {this.updateFavList}/>
               
             
           </TableCell>
+
           <TableCell width =  '50%' align="left">
-            <HeroCard heroInfo={row2}/>
+            {
+              row2 ? 
+                <HeroCard heroInfo = {row2}
+                          updateFavList = {this.updateFavList}/>
+              :
+                null
+            }
+            
           </TableCell>
                                     
         </TableRow>
@@ -122,8 +168,6 @@ class HerosTable extends Component {
     
     this.setState({actualPage : this.state.totalHeros[newPage]});
 
-    console.log(newPage);
-    
   };
 
   handleChangeRowsPerPage = event => {
@@ -134,11 +178,11 @@ class HerosTable extends Component {
   handleStatusClick(row){
 
     if(row === "Name"){
-      this.sortListByName()
+     this.sortListByName();
 
-      
     }else{
-      this.sortListByDate()
+     this.sortListByDate();
+
     }  
     
   }
@@ -157,9 +201,8 @@ class HerosTable extends Component {
     }
 
     this.setState({ actualPage : finalArray[0],
-                    totalHeros : finalArray},this.handleChangePage(null,0)) ;
-
-    
+                    totalHeros : finalArray,
+                    numberOfPages : list.length},this.handleChangePage(null,0)) ;
 
   }
 
@@ -168,13 +211,13 @@ class HerosTable extends Component {
 
     const {finalHeros, actualPage} = this.state;
 
+    
     var temp = finalHeros.sort(function(a,b){
   
-      return  b.name - a.name;
-    }).reverse();
-    console.log("entre");
+      return  a.name.localeCompare(b.name);
+    });
     
-    this.upDateList(temp);
+   this.upDateList(temp);
 
   }
 
@@ -191,38 +234,103 @@ class HerosTable extends Component {
     
   }
 
+  search(){
+
+    const {finalHeros, actualPage} = this.state;
+    
+    var name = this.textInput.current.value;
+
+    var temp = finalHeros.filter(function(heros){
+      return heros.name.toLowerCase().includes(name.toLowerCase()) ;
+    });
+
+    if(temp.length == 0){
+      this.notifyWarning('Search doesnt have results');
+      return;
+    }
+
+    this.upDateList(temp);
+    
+    
+  }
+
+  deleteComic = (i) =>{
+
+    const {favComics} = this.state;
+
+    var temp = favComics.filter(function(e) { return e.id !== i.id });
+
+    console.log(temp);
+    
+
+    this.setState({favComics : temp});
+
+  }
+
   render() {
 
-    const {rowsPerPage, page, sortType} = this.state;
+    const {rowsPerPage, page, sortType, numberOfPages, favComics} = this.state;
 
     return (
-      <Paper className= {classNames(styles.herosTable)}>
-        <DropdownButton variant="danger" title="Sort By">
-          {sortType.map((row,index) => (
-            <Dropdown.Item onClick = {() => this.handleStatusClick(row)} key={row+index}>{
-              row
-            }</Dropdown.Item>
-          ))}
-        </DropdownButton>
-      
-        <Table aria-label="simple table">
-                  
-          <TableBody >
-            {this.showRows()}
-          </TableBody>
 
-        </Table>
-        <TablePagination
-          rowsPerPageOptions={[]}
-          component="div"
-          count={this.state.finalHeros.length}
-          rowsPerPage={rowsPerPage}
-          page = {page}
-          onChangePage={this.handleChangePage}
-          onChangeRowsPerPage={this.handleChangeRowsPerPage}
-        />
+      <div className= {classNames(styles.container)}>
+
+      <ToastContainer enableMultiContainer containerId={'notification'} position={toast.POSITION.TOP_RIGHT} />
+
+      <Row className= {classNames(styles.row)}>
+        <Col sm={10}>
+        <Paper className= {classNames(styles.herosTable)}>
+
+          <Row>
+            <Col>
+              <DropdownButton variant="danger" title="Sort By" className= {classNames(styles.drop)} size = 'lg'>
+                {sortType.map((row,index) => (
+                  <Dropdown.Item onClick = {() => this.handleStatusClick(row)} key={row+index}>{
+                    row
+                  }</Dropdown.Item>
+                ))}
+              </DropdownButton>    
+            </Col>
+            
+            <Col>
+              <Form inline>
+                <Form.Control type="text" placeholder="Search" className="mr-sm-2" ref={this.textInput}/>
+                <Button variant="contained" color="secondary" onClick = {() => this.search()}>Search</Button>
+              </Form>
+            </Col>
+          </Row>
+          
+          <Table aria-label="simple table">
+                    
+            <TableBody >
+              {this.showRows()}
+            </TableBody>
+
+          </Table>
+          <TablePagination
+            rowsPerPageOptions={[]}
+            component="div"
+            count={numberOfPages}
+            rowsPerPage={rowsPerPage}
+            page = {page}
+            onChangePage={this.handleChangePage}
+            onChangeRowsPerPage={this.handleChangeRowsPerPage}
+          />
       
-      </Paper>
+        </Paper>
+        </Col>
+
+        <Col className= {classNames(styles.list)}>
+
+          <ComicCard  comics = {favComics}
+                      deleteComic = {this.deleteComic}/>
+          
+        </Col>
+      </Row>
+
+      </div>
+
+      
       
 
     )
