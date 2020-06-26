@@ -14,6 +14,8 @@ import classNames from "classnames";
 
 import axios from 'axios';
 import md5 from 'md5';
+import moment from 'moment';
+
 
 const privateKey = "b7d2bef1b3feb2720bc188c77d16f7f2c624b126";
 const publicKey = "e1b384507a43560a8dd97f899ba78e7e";
@@ -34,7 +36,14 @@ class HeroCard extends Component {
         comicTitle : "",
         comicImage : "",
         comicDescription : "",
-        activeComic : []
+        activeComic : [],
+        showInfo : false,
+        heroName : "",
+        heroImage : "",
+        heroDescription : "",
+        heroUrls : "",
+        heroModified : ""
+
       }
 
   }
@@ -70,16 +79,29 @@ class HeroCard extends Component {
     this.setState({show : false});
   }
 
+  handleInfoClose(){
+    this.setState({showInfo : false});
+  }
 
-  getInfo(){
-    console.log(this.state.test);
+
+  showMoreInfo(info){
+
+    console.log(info.urls);
     
+
+    this.setState({ showInfo : true,
+                    heroName : info.name,
+                    heroImage : info.thumbnail.path +"/portrait_incredible." + info.thumbnail.extension,
+                    heroDescription : info.description,
+                    heroUrls : info.urls,
+                    heroModified : moment(info.modified).format('MMMM Do YYYY, h:mm:ss a')});
+
   }
 
   render() {
 
     const {heroInfo} = this.props;
-    const {show, comicTitle, comicImage, comicDescription} = this.state;
+    const {show, comicTitle, comicImage, comicDescription, showInfo, heroName, heroDescription, heroUrls, heroImage, heroModified} = this.state;
 
     return(
       
@@ -132,8 +154,73 @@ class HeroCard extends Component {
 
         </Modal.Body>
        
-         
-        
+      </Modal>
+
+      <Modal show={showInfo} onHide={() => this.handleInfoClose()} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>{heroName}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+        <Row>
+          <Col xs={6} md={4}>
+            <Image src={heroImage} rounded />
+          </Col>
+          <Col xs={12} md={8}>
+          <Card style={{ height: '100%' }}>
+            
+              <Card.Body>
+                
+                <div  className= {classNames(styles.description)}>
+                  {heroDescription ? heroDescription : "No description avaible."}
+                </div>
+
+                <div  className= {classNames(styles.description)}>
+                  { "LAST MODIFIED DATE: " + heroModified}
+                </div>
+
+                <div className= {classNames(styles.subTitle)}>INTEREST SITES:</div>
+
+                  {heroUrls ?
+                    heroUrls
+                    .map((row, index) =>
+                      <div key = {index}>
+                        <a target="_blank" key = {index} className= {classNames(styles.comicLink)} href={row.url}>
+                          { row.type == "detail" ? "DETAIL"
+                            : row.type == "wiki" ? "WIKI"
+                            : row.type == "comiclink" ? "COMIC LINK"
+                            : null
+                          }
+                        </a>
+                      </div>
+                      
+                    )
+
+                    : 
+                    null
+                  }
+
+                <Row className = {classNames(styles.rowButton)}>
+                    
+                    <Col>
+                    
+                      <Button variant="secondary" onClick={() => this.handleInfoClose()} className= {classNames(styles.buttonComic)}>
+                        Close
+                      </Button>
+
+                    </Col>
+
+                </Row>
+
+               
+                
+              </Card.Body>
+          </Card>
+        </Col>
+          
+        </Row>
+
+        </Modal.Body>
+       
       </Modal>
 
       <Row>
@@ -168,7 +255,7 @@ class HeroCard extends Component {
                 <Row className = {classNames(styles.rowButton)}>
                     <Col>
                     
-                      <Button variant="secondary" onClick={() => this.handleClose()} className= {classNames(styles.buttonComic)}>
+                      <Button variant="secondary" onClick={() => this.showMoreInfo(heroInfo)} className= {classNames(styles.buttonComic)}>
                         More Info
                       </Button>
 
