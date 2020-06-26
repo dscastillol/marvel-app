@@ -16,7 +16,7 @@
 
 .list{
     position: absolute;
-    height: 200%;
+    height: 100%;
     overflow-y: scroll;
     background-color: #EFF0F1;
 }
