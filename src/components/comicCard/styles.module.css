@@ -26,6 +26,8 @@
 
 .overlay {
     position: absolute !important;
-    right: 15%;
+    right: 5%;
+    color: black !important;
     z-index: 5;
+    transform: translateY(-45%);
   }
