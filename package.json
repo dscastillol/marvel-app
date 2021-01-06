@@ -38,7 +38,7 @@
     ]
   },
   "devDependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "classnames": "^2.2.6",
     "create-react-component-folder": "^0.2.6",
     "md5": "^2.2.1",
